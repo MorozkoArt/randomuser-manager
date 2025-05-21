@@ -51,16 +51,6 @@ async def load_users(
             status_code=400
         )
 
-
-@router.get("/user/{user_id}", response_class=HTMLResponse)
-async def read_user(user_id: int, request: Request, db: AsyncSession = Depends(get_db)):
-    repo = UserRepository(db)
-    user = await repo.get_user(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return templates.TemplateResponse("user_detail.html", {"request": request, "user": user})
-
-
 @router.get("/random", response_class=HTMLResponse)
 async def random_user(request: Request, db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
@@ -68,3 +58,12 @@ async def random_user(request: Request, db: AsyncSession = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
     return templates.TemplateResponse("user_detail.html", {"request": request, "user": user})
+
+@router.get("/{user_id}", response_class=HTMLResponse)
+async def read_user(user_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+    repo = UserRepository(db)
+    user = await repo.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return templates.TemplateResponse("user_detail.html", {"request": request, "user": user})
+

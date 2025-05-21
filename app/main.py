@@ -6,8 +6,9 @@ from app.routers import api, frontend
 
 app = FastAPI()
 
-app.include_router(frontend.router)
 app.include_router(api.router, prefix="/api/v1")
+app.include_router(frontend.router)
+
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 

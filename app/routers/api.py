@@ -7,7 +7,7 @@ from app.database import get_db
 
 router = APIRouter()
 
-@router.get("/users/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=User)
 async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     repo = UserRepository(db)
     user = await repo.get_user(user_id)
