@@ -67,5 +67,5 @@ tmp/
 *.pyo
 *.pyd
 
-# Файлы кэша
+# Cache files
 .cache
