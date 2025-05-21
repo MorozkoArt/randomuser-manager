@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Random Users Manager</h1>
+
+<form action="/load-users" method="post" enctype="application/x-www-form-urlencoded">
+    <div class="form-group">
+        <label for="count">Number of users to load (1-5000):</label>
+        <input type="number" id="count" name="count" min="1" max="5000" required>
+        <button type="submit">Load Users</button>
+    </div>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>Gender</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td><img src="{{ user.picture_url }}" alt="User photo" class="user-photo"></td>
+            <td>{{ user.gender }}</td>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.location }}</td>
+            <td><a href="/user/{{ user.id }}">View</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/?page={{ page - 1 }}">Previous</a>
+    {% endif %}
+
+    <span>Page {{ page }} of {{ total_pages }}</span>
+
+    {% if page < total_pages %}
+    <a href="/?page={{ page + 1 }}">Next</a>
+    {% endif %}
+</div>
+{% endblock %}

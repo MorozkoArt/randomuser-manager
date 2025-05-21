@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+input[type="number"] {
+    padding: 8px;
+    width: 100px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 8px 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+.user-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.user-detail {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.user-photo-large {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 20px 0;
+}
+
+.user-info {
+    text-align: left;
+    margin: 20px 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
