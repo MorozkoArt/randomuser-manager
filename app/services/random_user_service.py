@@ -13,7 +13,8 @@ class RandomUserService:
                 params={"results": count}
             )
             response.raise_for_status()
-            return response.json()["results"]
+            data = response.json()
+            return data["results"]
 
     async def load_users(self, count: int):
         users_data = await self.fetch_users(count)

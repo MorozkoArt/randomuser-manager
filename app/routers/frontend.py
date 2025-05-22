@@ -32,22 +32,41 @@ async def load_users(
         count: int = Form(...),
         db: AsyncSession = Depends(get_db)
 ):
+    repo = UserRepository(db)
+    
+    users = await repo.get_users()
+    per_page = 10
+    current_page = 1
+    total_pages = max(1, (len(users) + per_page - 1) // per_page)
+    
     if count < 1 or count > 5000:
         return templates.TemplateResponse(
             "index.html",
-            {"request": request, "error": "Count must be between 1 and 5000"},
+            {
+                "request": request,
+                "error": "Count must be between 1 and 5000",
+                "users": users[:per_page],
+                "page": current_page,
+                "total_pages": total_pages
+            },
             status_code=400
         )
 
     try:
-        repo = UserRepository(db)
         service = RandomUserService(repo)
         await service.load_users(count)
         return RedirectResponse(url="/", status_code=303)
+    
     except Exception as e:
         return templates.TemplateResponse(
             "index.html",
-            {"request": request, "error": str(e)},
+            {
+                "request": request,
+                "error": str(e),
+                "users": users[:per_page],
+                "page": current_page,
+                "total_pages": total_pages
+            },
             status_code=400
         )
 
