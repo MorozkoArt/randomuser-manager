@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from typing import Annotated
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import User
 from app.database import get_db
@@ -8,7 +8,9 @@ from app.database import get_db
 router = APIRouter()
 
 @router.get("/random", response_model=User)
-async def random_user(db: AsyncSession = Depends(get_db)):
+async def random_user(
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> User:
     repo = UserRepository(db)
     user = await repo.get_random_user()
     if not user:
@@ -16,7 +18,10 @@ async def random_user(db: AsyncSession = Depends(get_db)):
     return user
 
 @router.get("/{user_id}", response_model=User)
-async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+async def read_user(
+    user_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)]
+) -> User:
     repo = UserRepository(db)
     user = await repo.get_user(user_id)
     if not user:
