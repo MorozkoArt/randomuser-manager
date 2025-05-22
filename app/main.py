@@ -1,9 +1,8 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-
 from app.database import engine, Base
 from app.routers import api, frontend
-
 from app.database import get_db
 import os
 
@@ -15,8 +14,8 @@ app.include_router(frontend.router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -30,9 +29,10 @@ async def init_db_data():
 
     async with async_session() as session:
         repo = UserRepository(session)
-        if await repo.count_users() == 0:
+        count_user = await repo.count_users()
+        if count_user < 1000:
             service = RandomUserService(repo)
-            await service.load_users(1000)
+            await service.load_users(1000 - count_user)
 
 # Для тестов
 async def override_get_db():
@@ -42,4 +42,3 @@ async def override_get_db():
 
 if os.getenv("TESTING"):
     app.dependency_overrides[get_db] = override_get_db
-
