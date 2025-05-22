@@ -3,6 +3,10 @@
 {% block content %}
 <h1>Random Users Manager</h1>
 
+{% if error %}
+<div class="error-message">{{ error }}</div>
+{% endif %}
+
 <form action="/load-users" method="post" enctype="application/x-www-form-urlencoded">
     <div class="form-group">
         <label for="count">Number of users to load (1-5000):</label>
@@ -25,7 +29,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in users %}
+        {% for user in users|default([]) %}
         <tr>
             <td><img src="{{ user.picture_url }}" alt="User photo" class="user-photo"></td>
             <td>{{ user.gender }}</td>
@@ -41,14 +45,14 @@
 </table>
 
 <div class="pagination">
-    {% if page > 1 %}
-    <a href="/?page={{ page - 1 }}">Previous</a>
+    {% if (page|default(1)) > 1 %}
+    <a href="/?page={{ (page|default(1)) - 1 }}">Previous</a>
     {% endif %}
 
-    <span>Page {{ page }} of {{ total_pages }}</span>
+    <span>Page {{ page|default(1) }} of {{ total_pages|default(1) }}</span>
 
-    {% if page < total_pages %}
-    <a href="/?page={{ page + 1 }}">Next</a>
+    {% if (page|default(1)) < (total_pages|default(1)) %}
+    <a href="/?page={{ (page|default(1)) + 1 }}">Next</a>
     {% endif %}
 </div>
 {% endblock %}
