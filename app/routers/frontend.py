@@ -79,14 +79,12 @@ async def random_user(request: Request, db: AsyncSession = Depends(get_db)):
 
 @router.get("/admin/clear")
 async def clear_users_table(db: AsyncSession = Depends(get_db)):
-    """Полная очистка таблицы users с reset последовательности"""
     try:
-        # TRUNCATE с RESET IDENTITY полностью очищает таблицу и сбрасывает счётчик
         await db.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
         await db.commit()
         
         return RedirectResponse(
-            url="/?message=Users+table+cleared+with+ID+reset",
+            url="/?message=Clear_DB",
             status_code=303
         )
     except Exception as e:

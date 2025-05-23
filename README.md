@@ -1,7 +1,10 @@
-# RandomUser API Integration Project
-
 <div align="center">
 
+   <h1>✨ Random Users Manager ✨</h1>
+   <hr width="50%"/>
+
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql)
 ![Project Logo](./images/preview.png)
 *A web application for fetching and managing random user data*
 
@@ -34,6 +37,18 @@ FastAPI был выбран благодаря своей высокой про�
 | **Конкурентный доступ**| ✅ Полная поддержка MVCC                      | ⚠️Ограниченная               | ❌ Блокировка всей БД              |
 | **Расширяемость**      | ✅ Возможность добавления функций на C/Python | ❌ Ограниченная              | ❌ Нет                             |
 | **Транзакции**         | ✅ Полная ACID-совместимость                  | ⚠️ Зависит от движка         | ✅ ACID (но глобальная блокировка) |
+
+### 🔧 Общий Технологический стек
+
+| Категория           | Технологии             | Назначение                                 |
+|---------------------|------------------------|--------------------------------------------|
+| **🌐 Backend**     | FastAPI                | Веб-фреймворк для API                      |
+|                     | SQLAlchemy + asyncpg   | Асинхронная работа с PostgreSQL            |
+|                     | Pydantic               | Валидация и сериализация данных            |
+| **🎨 Frontend**    | Jinja2                 | Генерация HTML-страниц                     |
+| **💾 База данных** | PostgreSQL             | Хранение данных пользователей              |
+| **🧰 Утилиты**     | httpx                  | Запросы к RandomUser API                   |
+| **🧪 Тестирование**| pytest                 | Тестирование и генерация тестовых данных   |
 
 ## 🚀 Инструкция по запуску проекта
 
@@ -103,7 +118,7 @@ psql -U postgres -c "CREATE DATABASE randomusers;"
 # Альтернатива через pgAdmin (для всех ОС)
 ```
 
-### 7. Запуск
+### 6. Запуск
 
 1. Запуск приложения
 
@@ -123,6 +138,148 @@ psql -U postgres -c "CREATE DATABASE randomusers;"
    pytest
    ```
 
-### 8. Доступ к приложению
+### 7. Доступ к приложению
 
 Откройте в браузере: <http://localhost:8000>
+
+## 🌐 Реализация Endpoints
+
+### 1. Главная страница с таблицей пользователей `GET /`
+
+- Пагинация (20 пользователей на странице)
+- Форма для загрузки новых пользователей
+
+```python
+@router.get("/", response_class=HTMLResponse)
+async def read_root(request: Request, page: int = 1, db: AsyncSession = Depends(get_db)):
+   repo = UserRepository(db)
+   per_page = 20
+   total_users = await repo.count_users()
+   users = await repo.get_users(skip=(page - 1) * per_page, limit=per_page)
+
+   """ остальной код ..."""
+```
+
+### 2. Загрузка пользователей `POST /load-users`
+
+- Валидация ввода (1-5000 пользователей)
+- Асинхронная загрузка из RandomUser API
+
+```python
+@router.post("/load-users")
+async def load_users(
+         request: Request,
+         count: int = Form(...),
+         db: AsyncSession = Depends(get_db)
+):
+   repo = UserRepository(db)
+   
+   users = await repo.get_users()
+   per_page = 10
+   current_page = 1
+   total_pages = max(1, (len(users) + per_page - 1) // per_page)
+
+   """ остальной код ..."""
+```
+
+### 3. Просмотр конкретного пользователя `GET /{user_id}`
+
+![Страница пользователя](./images/user.png)  
+
+- Полная информация о пользователе
+- Увеличенное фото
+
+```python
+@router.get("/{user_id}", response_class=HTMLResponse)
+async def read_user(user_id: int, request: Request, db: AsyncSession = Depends(get_db)):
+   repo = UserRepository(db)
+   user = await repo.get_user(user_id)
+   if not user:
+      raise HTTPException(status_code=404, detail="User not found")
+   return templates.TemplateResponse(request, "user_detail.html", {"user": user})
+```
+
+### 4. Случайный пользователь `GET /random`
+
+- При каждом обновлении - новый пользователь
+
+```python
+@router.get("/random", response_class=HTMLResponse)
+async def random_user(request: Request, db: AsyncSession = Depends(get_db)):
+   repo = UserRepository(db)
+   user = await repo.get_random_user()
+   if not user:
+      raise HTTPException(status_code=404, detail="No users found")
+   return templates.TemplateResponse(request, "user_detail.html", {"user": user})
+```
+
+### 5. Очистка БД `GET /admin/clear` (Дополнительный Endpoint, для удобного тестирования)
+
+- полностью очищает БД, удаляет всех пользователей
+
+```python
+@router.get("/admin/clear")
+async def clear_users_table(db: AsyncSession = Depends(get_db)):
+   try:
+      await db.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
+      await db.commit()
+
+      """ остальной код ..."""
+```
+
+### Отображение в Swagger
+
+![Swagger](./images/swagger.png)
+
+## 🧪 Тестирование
+
+### 🛡️ Изолированная тестовая среда
+
+- **SQLite in-memory база** (`sqlite+aiosqlite:///:memory:`)  
+  *Полная изоляция тестов без side-эффектов:*
+
+  ```python
+   @pytest_asyncio.fixture(scope="session")
+   async def db_engine():
+      engine = create_async_engine(
+         "sqlite+aiosqlite:///:memory:",
+         connect_args={"check_same_thread": False}
+      )
+      
+      async with engine.begin() as conn:
+         await conn.run_sync(Base.metadata.create_all)
+      
+      yield engine
+      
+      await engine.dispose()
+   ```
+
+- **Мокирование внешнего API** через `pytest-httpx`  
+
+  ```python
+  def test_load_users(httpx_mock):
+      httpx_mock.add_response(json={
+          "results": [{
+              "gender": "female",
+              "name": {"first": "Test", "last": "User"},
+              "email": "test@example.com"
+          }]
+      })
+  ```
+
+### ✅ Что тестируется
+
+1. **API Endpoints**:
+   - `GET /` (пагинация)
+   - `GET /random` (случайный пользователь)
+   - `GET /user/{id}` (детали пользователя)
+   - `POST /load-users` (загрузка новых данных)
+
+2. **Интеграции**:
+   - Работа с БД (SQLAlchemy)
+   - Валидация данных (Pydantic)
+   - Обработка ошибок (404, 422 и др.)
+
+3. **Frontend**:
+   - Корректность HTML-шаблонов
+   - Отображение данных пользователя

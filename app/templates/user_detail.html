@@ -9,7 +9,7 @@
         <p><strong>Gender:</strong> {{ user.gender }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>Phone:</strong> {{ user.phone }}</p>
-        <p><strong>Location:</strong> {{ user.location }}</p>
+        <p><strong>Location:</strong> <p>{{ user.location|replace('\n', '<br>')|safe }}</p></p>
     </div>
 
     <a href="/" class="back-link">Back to list</a>

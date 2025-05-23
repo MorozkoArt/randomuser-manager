@@ -37,7 +37,7 @@
             <td>{{ user.last_name }}</td>
             <td>{{ user.phone }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.location }}</td>
+            <td><p>{{ user.location|replace('\n', '<br>')|safe }}</p></td>
             <td><a href="/{{ user.id }}">View</a></td>
         </tr>
         {% endfor %}

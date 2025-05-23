@@ -24,15 +24,31 @@ class RandomUserService:
         users_data = await self.fetch_users(count)
         for user_data in users_data:
             try:
-                user_dict = {
-                    "gender": user_data["gender"],
-                    "first_name": user_data["name"]["first"],
-                    "last_name": user_data["name"]["last"],
-                    "email": user_data["email"],
-                    "phone": user_data["phone"],
-                    "location": str(user_data["location"]),
-                    "picture_url": user_data["picture"]["thumbnail"]
-                }
+                user_dict = self._transform_user_data(user_data)
                 await self.repository.create_user(user_dict)
             except Exception as e:
                 continue
+    
+    def _transform_user_data(self, user_data: dict) -> dict:
+        location = user_data["location"]
+        street = location.get("street", {})
+        
+        return {
+            "gender": user_data["gender"],
+            "first_name": user_data["name"]["first"],
+            "last_name": user_data["name"]["last"],
+            "email": user_data["email"],
+            "phone": user_data["phone"],
+            "location": self._format_location(location),
+            "picture_url": user_data["picture"]["thumbnail"]
+        }
+
+    def _format_location(self, location: dict) -> str:
+        street = location.get("street", {})
+        parts = [
+            f"Country: {location.get('country', 'N/A')}",
+            f"State: {location.get('state', 'N/A')}",
+            f"City: {location.get('city', 'N/A')}",
+            f"Street: {street.get('number', 'N/A')} {street.get('name', 'N/A')}"
+        ]
+        return "\n".join(parts)
