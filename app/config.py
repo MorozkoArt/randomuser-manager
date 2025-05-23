@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: SecretStr
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_NAME: str = "randomusers"
+    DB_NAME: SecretStr
     RANDOM_USER_API: HttpUrl = "https://randomuser.me/api/"
 
     model_config = SettingsConfigDict(
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://{self.DB_USER}:"
             f"{self.DB_PASSWORD.get_secret_value()}@"
-            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME.get_secret_value()}"
         )
 
 settings = Settings()
