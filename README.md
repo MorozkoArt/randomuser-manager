@@ -1,7 +1,6 @@
 <div align="center">
 
    <h1>✨ Random Users Manager ✨</h1>
-   <hr width="50%"/>
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql)
