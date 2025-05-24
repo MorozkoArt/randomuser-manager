@@ -1,0 +1,44 @@
+# Игнорируемые файлы и директории
+
+# Системные файлы
+.git/
+.gitignore
+.DS_Store
+.vscode/
+.idea/
+
+# Файлы окружения (кроме примера)
+.env
+*.env
+
+# Файлы Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.pytest_cache/
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Файлы сборки и дистрибуции
+dist/
+build/
+*.exe
+
+# Документация
+docs/_build/
+
+# Тестовые данные
+tests/
+
+# Игнорируем все кроме нужного
+*
+!app/
+!main.py
+!requirements.txt
+!Dockerfile
+!docker-compose.yml
